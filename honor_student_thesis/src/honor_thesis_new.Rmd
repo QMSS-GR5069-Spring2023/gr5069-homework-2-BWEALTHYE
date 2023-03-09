@@ -77,20 +77,16 @@ dt <- dt %>%
 
 #e) Subset data
 ```{r}
-dt_f <- dt %>% 
-  filter(Gender == 1)
+# Subset data and calculate means and standard deviations by gender and condition
+dt_summary <- dt %>% 
+  group_by(Gender, Condition) %>% 
+  summarize(mean_likability_1 = mean(as.numeric(likability_1_mean), na.rm = TRUE),
+            sd_likability_1 = sd(as.numeric(likability_1_mean), na.rm = TRUE),
+            mean_likability_2 = mean(as.numeric(likability_2_mean), na.rm = TRUE),
+            sd_likability_2 = sd(as.numeric(likability_2_mean), na.rm = TRUE),
+            .groups = "drop")
 
-dt_per_likability_f <- dt_f %>% 
-  filter(Condition == "Perfect") %>%
-  select(likability_1)
 
-dt_ave_likability_f <- dt_f %>% 
-  filter(Condition == "Average") %>%
-  select(likability_1)
-
-dt_over_likability_f <- dt_f %>% 
-  filter(Condition == "Overweight") %>%
-  select(likability_1)
 
 ```
 
