@@ -51,7 +51,7 @@ library(psych)
 
 #b) Data Import
 ```{r}
-#Change this to a relative path
+#Change this to a relative
 dt <- read_csv("../data/Cleaned.csv")
 ```
 
@@ -60,21 +60,18 @@ moderator is the gender of participants
 ```{r}
 # Calculate reliabilities for likability measures
 dt <- dt %>% 
-  mutate(likability_1_alpha = alpha(select(., starts_with("14、喜爱度"), starts_with("18、喜爱度"), starts_with("22、好感度"))),
-         likability_2_alpha = alpha(select(., starts_with("30、喜爱度"))))
+  mutate(likability_1_alpha = alpha(select(., starts_with("14、喜爱度"), starts_with("18、喜爱度"), starts_with("22、好感度")))$total_rel,
+         likability_2_alpha = alpha(select(., starts_with("30、喜爱度")))$total_rel)
 
 ```
 #d)Calculate means
 ```{r}
-dt <- dt %>%
-  mutate(likability_1 = rowMeans(select(dt,  
-                                starts_with("14、喜爱度"),
-                                starts_with("18、喜爱度"),
-                                starts_with("22、好感度")), 
-                         na.rm=T)) %>%
-  mutate(likability_2 = rowMeans(select(dt,  
-                                 starts_with("30、喜爱度")), 
-                         na.rm=T))
+# Calculate means for likability measures
+dt <- dt %>% 
+  rowwise() %>% 
+  mutate(likability_1_mean = mean(select(., starts_with("14、喜爱度"), starts_with("18、喜爱度"), starts_with("22、好感度")), na.rm = TRUE),
+         likability_2_mean = mean(select(., starts_with("30、喜爱度")), na.rm = TRUE))
+
 
 ```
 
