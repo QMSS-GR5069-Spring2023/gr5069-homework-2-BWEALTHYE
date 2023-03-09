@@ -141,58 +141,49 @@ confint(mod_fear_3)
 ```
 
 ```{r}
+# Load packages
 library(Publish)
-dt_plot_means <- ci.mean(likability_1~Condition,
-                         data=dt_m)
-dt_plot_means <- as_tibble(dt_plot_means)
-dt_plot_means <- as_tibble(dt_plot_means)%>%
-  select(labels, mean, lower, upper)
 library(ggplot2)
 library(ggsci)
 library(ggpubr)
-
-apatheme=theme_bw()+
-  theme(panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),
-        panel.border=element_blank(),
-        axis.line=element_line(),
-        text=element_text(family='sans',size=10),
-        legend.title = element_text(size = 10))
-
-dodge = position_dodge(width=0.8)
-
-plot.fear <- ggplot(dt_plot_means, # Your dataset that contains labels, means, and lower and upper bounds
-                    aes(x = labels, # this corresponds to the variable that specifies groups/conditions
-                        y = mean,  # this corresponds to the variable that records group means
-                        fill = labels))+ # this corresponds to the variable that specifies groups/conditions
-  scale_fill_nejm()+                    # I am using the color panel for the New England Journal of Medicine. You could change to a different one. 
-  geom_bar(stat='identity', position = dodge, width = 0.8)+  
-  coord_cartesian(ylim=c(1,5))+         # you should use the scale of your DV (5 points? 7 points?)
-  geom_errorbar(aes(ymin = lower,       # this corresponds to the variable that records the lower bound for the 95% CI.
-                    ymax = upper),      # this corresponds to the variable that records the lower bound for the 95% CI.
-                size=0.5, 
-                position=dodge, 
-                width=0.06, 
-                colour="gray30")+
-  apatheme+
-  ylab("95% CIs of Group Means")+       # label/name of the Y axis --> Feel free to change this. 
-  xlab("Conditions")                    # label/name of the X axis --> Feel free to change this. 
-
-plot.fear
-
 library(officer)
 library(rvg)
 
-## Output to PPT
-p_dml <- rvg::dml(ggobj = plot.fear) # name of your ggplot2 object
+# Compute means and CIs
+dt_plot_means <- dt_m %>%
+  group_by(Condition) %>%
+  summarise(mean = mean(likability_1),
+            lower = mean - qnorm(0.975) * sd(likability_1) / sqrt(n()),
+            upper = mean + qnorm(0.975) * sd(likability_1) / sqrt(n())) %>%
+  select(labels = Condition, mean, lower, upper)
 
+# Create plot
+plot.fear <- ggplot(dt_plot_means, aes(x = labels, y = mean, fill = labels)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.8) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), 
+                position = position_dodge(width = 0.8), 
+                width = 0.06, 
+                size = 0.5, 
+                colour = "gray30") +
+  scale_fill_nejm() +
+  coord_cartesian(ylim = c(1, 5)) +
+  labs(x = "Conditions", y = "95% CIs of Group Means") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(),
+        text = element_text(family = "sans", size = 10),
+        legend.title = element_text(size = 10))
+
+# Output to PPT
+p_dml <- rvg::dml(ggobj = plot.fear)
 read_pptx() %>%
-    add_slide(layout = "Title and Content", master = "Office Theme") %>%
-    ph_with(value = p_dml, 
-            location = ph_location(type = "body",
-                                   width = 10, # You can change the width of your output ppt
-                                   height = 5)) %>% # You can change the height of your output ppt
-    print(target = "figure_group_means.pptx")
+  add_slide(layout = "Title and Content", master = "Office Theme") %>%
+  ph_with(value = p_dml, 
+          location = ph_location(type = "body", width = 10, height = 5)) %>%
+  print(target = "figure_group_means.pptx")
+
 ```
 
 #g)shopping intention to split alpha
