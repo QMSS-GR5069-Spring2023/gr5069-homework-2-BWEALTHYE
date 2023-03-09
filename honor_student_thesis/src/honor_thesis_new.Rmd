@@ -42,29 +42,26 @@ plot(pressure)
 
 #a) Part 1: Package Installed
 ```{r}
-install.packages("tidyverse") 
-install.packages("psych") 
-install.packages("ggplot2")
+#install.packages("tidyverse") 
+#install.packages("psych") 
+#install.packages("ggplot2")
 library(tidyverse) 
 library(psych)
 ```
 
 #b) Data Import
 ```{r}
-dt <- read_csv("Cleaned.csv")
-dt
+dt <- read_csv("../data/Cleaned.csv")
 ```
 
 #c) Calculate reliabilities
 moderator is the gender of participants
 ```{r}
-dt_likability_1 <- dt %>% # this is the "pipe" function
-  select(starts_with("14、喜爱度"), starts_with("18、喜爱度"), starts_with("22、好感度"))
-alpha(dt_likability_1) # This is the "alpha" function from the psych package to calculate Cronbach's alpha --- one of the most commonly used metric for reliability
+# Calculate reliabilities for likability measures
+dt <- dt %>% 
+  mutate(likability_1_alpha = alpha(select(., starts_with("14、喜爱度"), starts_with("18、喜爱度"), starts_with("22、好感度"))),
+         likability_2_alpha = alpha(select(., starts_with("30、喜爱度"))))
 
-dt_likability_2 <- dt %>% # this is the "pipe" function
-  select(starts_with("30、喜爱度"))
-alpha(dt_likability_2)
 ```
 #d)Calculate means
 ```{r}
