@@ -51,6 +51,7 @@ library(psych)
 
 #b) Data Import
 ```{r}
+#Change this to a relative path
 dt <- read_csv("../data/Cleaned.csv")
 ```
 
